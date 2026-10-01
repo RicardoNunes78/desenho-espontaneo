@@ -1,0 +1,343 @@
+<!--
+******************************************************************************************************
+Todo caminho do homem é reto aos seus próprios olhos, mas o Senhor sonda as intenções. Provérbios 21:2
+******************************************************************************************************
+                                                           Bendito seja o nome do Senhor Jesus Cristo.
+-->
+<!DOCTYPE html>
+<html lang="br">
+	<head>
+		<title>Desenho Espontaneo</title>
+		<meta http-equiv="Content-Type" content="text/html" charset="utf-8" />
+		<meta name="viewport" content="width = 1050, user-scalable = no" />
+		<!--meta name="viewport" content="width=device-width,initial-scale=1.0" /-->
+		<meta name="generator" content="Web Emp Editor 1.0" />
+		<meta name="date" content="2014-06-12T22:46:16-0300" />
+		<meta name="author" content="Web Emp - Organização Empresarial Ltda" />
+		<meta name="robots" content="index,follow" />
+		<meta name="description" content="O significado do desenho espontaneo realizado pela criança - Formanda do Curso de Licenciatura em Pedagogia Uninter 2015. Franciele Chagas dos Santos Nunes." />
+		<meta name="keywords" content="Desenho, Desenho espontaneo, criança, aluno, garatuja, rabisco, garrancho, escola, pedagogia, desenho infantil, significado do desenho" />
+		<link rel="shortcut icon" href="http://www.desenhoespontaneo.com.br/imagens/favicon.ico" type="image/x-icon" />
+		<link type="text/css" rel="stylesheet" href="css/magazine.css" />
+		<script type="text/javascript" src="../../extras/jquery.min.1.7.js"></script>
+		<script type="text/javascript" src="../../extras/modernizr.2.5.3.min.js"></script>
+		<script type="text/javascript" src="../../extras/jquery.mousewheel.min.js"></script>
+		<!-- turn.js files -->
+		<script type="text/javascript" src="../../lib/hash.js"></script>
+		<script type="text/javascript" src="js/magazine.js"></script>
+		<script type="text/javascript">
+			function loadApp() {
+				$('#all').fadeIn(1000);
+		        // Cria o efeito revista:
+				$('.magazine').turn({
+					// Largura da revista:
+					width: 1200, /* 922 */
+					// Altura da revista:
+					height: 350, /* 650 */
+					// Pixel padrão de elevação da orelha da folha:
+					elevation: 50,
+					// Aceleração de Hardware:
+					acceleration: !isChrome(),
+					// habilita os gradientes:
+					gradients: true,
+					// Centraliza a revista:
+					autoCenter: true,
+// ***************** Número de Páginas:
+					pages: 80,
+					// Eventos:
+					when: {
+						turning: function(event, page, view) {
+							var book = $(this),
+							currentPage = book.turn('page'),
+							pages = book.turn('pages');
+							// Atualiza o URI atual:
+							Hash.go('page/' + page).update();
+							// Mostra e esconde os botões de navegação:
+							disableControls(page);
+							$('.thumbnails .page-'+currentPage).
+								parent().
+								removeClass('current');
+							$('.thumbnails .page-'+page).
+								parent().
+								addClass('current');
+						},
+						turned: function(event, page, view) {
+							disableControls(page);
+							$(this).turn('center');
+							if (page==1) {
+								$(this).turn('peel', 'br');
+						}
+					},
+					missing: function (event, pages) {
+						// Adiciona páginas que não estão na revista:
+						for (var i = 0; i < pages.length; i++)
+						addPage(pages[i], $(this));
+					}
+				}
+			});
+			// Chama o efeito de zoom:
+			$('.magazine-viewport').zoom({
+				flipbook: $('.magazine'),
+				max: function() {
+					return largeMagazineWidth()/$('.magazine').width();
+				}, 
+				when: {
+					tap: function(event) {
+						if ($(this).zoom('value')==1) {
+							$('.magazine').
+								removeClass('animated').
+								addClass('zoom-in');
+							$(this).zoom('zoomIn', event);
+						} else {
+							$(this).zoom('zoomOut');
+						}
+					},
+					resize: function(event, scale, page, pageElement) {
+						if (scale==1)
+							loadSmallPage(page, pageElement);
+						else
+							loadLargePage(page, pageElement);
+					},
+					zoomIn: function () {
+						$('.thumbnails').hide();
+						$('.made').hide();
+						$('.magazine').addClass('zoom-in');
+						if (!window.escTip && !$.isTouch) {
+							escTip = true;
+							$('<div />', {'class': 'esc'}).
+								html('<div>ESC para voltar</div>').
+									appendTo($('body')).
+									delay(2000).
+									animate({opacity:0}, 500, function() {
+										$(this).remove();
+									});
+						}
+					},
+					zoomOut: function () {
+						$('.esc').hide();
+						$('.thumbnails').fadeIn();
+						$('.made').fadeIn();
+						setTimeout(function(){
+							$('.magazine').addClass('animated').removeClass('zoom-in');
+							resizeViewport();
+							}, 0);
+						},
+						swipeLeft: function() {
+							$('.magazine').turn('next');
+						},
+						swipeRight: function() {
+							$('.magazine').turn('previous');
+						}
+					}
+				});
+				// Usa as teclas de seta para virar a página:
+				$(document).keydown(function(e){
+					var previous = 37, next = 39, esc = 27;
+					switch (e.keyCode) {
+						case previous:
+							// Seta para esquerda
+							$('.magazine').turn('previous');
+							e.preventDefault();
+						break;
+						case next:
+							//Seta para direita
+							$('.magazine').turn('next');
+							e.preventDefault();
+						break;
+						case esc:
+							$('.magazine-viewport').zoom('zoomOut');	
+							e.preventDefault();
+						break;
+					}
+				});
+// ***************** URIs - Formato #/page/1 
+				Hash.on('^page\/([0-9]*)$', {
+					yep: function(path, parts) {
+						var page = parts[1];
+						if (page!==undefined) {
+							if ($('.magazine').turn('is'))
+								$('.magazine').turn('page', page);
+						}
+					},
+					nop: function(path) {
+						if ($('.magazine').turn('is'))
+							$('.magazine').turn('page', 1);
+					}
+				});
+				$(window).resize(function() {
+					resizeViewport();
+				}).bind('orientationchange', function() {
+					resizeViewport();
+				});
+				// Eventos para thumbnails:
+				$('.thumbnails').click(function(event) {
+					var page;
+// ***************** Configura as páginas 
+					if (event.target && (page=/page-([0-9]+)/.exec($(event.target).attr('class'))) ) {
+						$('.magazine').turn('page', page[1]);
+					}
+				});
+				$('.thumbnails li').
+					bind($.mouseEvents.over, function() {
+						$(this).addClass('thumb-hover');
+					}).bind($.mouseEvents.out, function() {
+						$(this).removeClass('thumb-hover');
+					});
+				if ($.isTouch) {
+					$('.thumbnails').
+						addClass('thumbanils-touch').
+						bind($.mouseEvents.move, function(event) {
+							event.preventDefault();
+						});
+					} else {
+						$('.thumbnails ul').mouseover(function() {
+							$('.thumbnails').addClass('thumbnails-hover');
+						}).mousedown(function() {
+						return false;
+					}).mouseout(function() {
+						$('.thumbnails').removeClass('thumbnails-hover');
+					});
+				}
+				// Regions
+				if ($.isTouch) {
+					$('.magazine').bind('touchstart', regionClick);
+				} else {
+					$('.magazine').click(regionClick);
+				}
+				// Eventos para o botão avançar
+				$('.next-button').bind($.mouseEvents.over, function() {
+					$(this).addClass('next-button-hover');
+				}).bind($.mouseEvents.out, function() {
+					$(this).removeClass('next-button-hover');
+				}).bind($.mouseEvents.down, function() {
+					$(this).addClass('next-button-down');
+				}).bind($.mouseEvents.up, function() {
+					$(this).removeClass('next-button-down');
+				}).click(function() {
+					$('.magazine').turn('next');
+				});
+				// Eventos para o botão avançar
+				$('.previous-button').bind($.mouseEvents.over, function() {
+					$(this).addClass('previous-button-hover');
+				}).bind($.mouseEvents.out, function() {
+					$(this).removeClass('previous-button-hover');
+				}).bind($.mouseEvents.down, function() {
+					$(this).addClass('previous-button-down');
+				}).bind($.mouseEvents.up, function() {
+					$(this).removeClass('previous-button-down');
+				}).click(function() {
+					$('.magazine').turn('previous');
+				});
+				resizeViewport();
+				$('.magazine').addClass('animated');
+			}
+			$('#all').hide();
+			// Lê a versão HTML4 se lá não houver versão de folha de estilo/CSS:
+			yepnope({
+				test : Modernizr.csstransforms,
+				yep: ['../../lib/turn.min.js'],
+				nope: ['../../lib/turn.html4.min.js'],
+				both: ['../../lib/zoom.min.js'],
+				complete: loadApp
+			});
+    	</script>
+	</head>
+	<body style="text-align:center; background-image:url(../../../imagens/fundoRevista.jpg); background-size:100%">
+		<!--<div class="thumbnails">
+            <div>
+                <ul>
+                    <li class="i">
+                        <img src="pages/1-thumb.jpg" width="76" height="100" class="page-1">
+                        <span>1</span>
+                    </li>
+                    <li class="d">
+                        <img src="pages/2-thumb.jpg" width="76" height="100" class="page-2">
+                        <img src="pages/3-thumb.jpg" width="76" height="100" class="page-3">
+                        <span>2-3</span>
+                    </li>
+                    <li class="d">
+                        <img src="pages/4-thumb.jpg" width="76" height="100" class="page-4">
+                        <img src="pages/5-thumb.jpg" width="76" height="100" class="page-5">
+                        <span>4-5</span>
+                    </li>
+                    <li class="d">
+                        <img src="pages/6-thumb.jpg" width="76" height="100" class="page-6">
+                        <img src="pages/7-thumb.jpg" width="76" height="100" class="page-7">
+                        <span>6-7</span>
+                    </li>
+                    <li class="d">
+                        <img src="pages/8-thumb.jpg" width="76" height="100" class="page-8">
+                        <img src="pages/9-thumb.jpg" width="76" height="100" class="page-9">
+                        <span>8-9</span>
+                    </li>
+                    <li class="d">
+                        <img src="pages/10-thumb.jpg" width="76" height="100" class="page-10">
+                        <img src="pages/11-thumb.jpg" width="76" height="100" class="page-11">
+                        <span>10-11</span>
+                    </li>
+                    <li class="d">
+                        <img src="pages/12-thumb.jpg" width="76" height="100" class="page-12">
+                        <img src="pages/13-thumb.jpg" width="76" height="100" class="page-13">
+                        <span>10-11</span>
+                    </li>
+                    <li class="d">
+                        <img src="pages/14-thumb.jpg" width="76" height="100" class="page-14">
+                        <img src="pages/15-thumb.jpg" width="76" height="100" class="page-15">
+                        <span>10-11</span>
+                    </li>
+                    <li class="d">
+                        <img src="pages/16-thumb.jpg" width="76" height="100" class="page-16">
+                        <img src="pages/17-thumb.jpg" width="76" height="100" class="page-17">
+                        <span>10-11</span>
+                    </li>
+                    <li class="d">
+                        <img src="pages/18-thumb.jpg" width="76" height="100" class="page-18">
+                        <img src="pages/19-thumb.jpg" width="76" height="100" class="page-19">
+                        <span>10-11</span>
+                    </li>
+                    <li class="d">
+                        <img src="pages/20-thumb.jpg" width="76" height="100" class="page-20">
+                        <img src="pages/21-thumb.jpg" width="76" height="100" class="page-21">
+                        <span>10-11</span>
+                    </li>
+                    <li class="d">
+                        <img src="pages/22-thumb.jpg" width="76" height="100" class="page-22">
+                        <img src="pages/23-thumb.jpg" width="76" height="100" class="page-23">
+                        <span>10-11</span>
+                    </li>
+                    <li class="d">
+                        <img src="pages/24-thumb.jpg" width="76" height="100" class="page-24">
+                        <img src="pages/25-thumb.jpg" width="76" height="100" class="page-25">
+                        <span>10-11</span>
+                    </li>
+                    <li class="d">
+                        <img src="pages/26-thumb.jpg" width="76" height="100" class="page-26">
+                        <img src="pages/27-thumb.jpg" width="76" height="100" class="page-27">
+                        <span>10-11</span>
+                    </li>
+                    <li class="d">
+                        <img src="pages/28-thumb.jpg" width="76" height="100" class="page-28">
+                        <img src="pages/29-thumb.jpg" width="76" height="100" class="page-29">
+                        <span>10-11</span>
+                    </li>
+                    <li class="i">
+                        <img src="pages/30-thumb.jpg" width="76" height="100" class="page-30">
+                        <span>12</span>
+                    </li>
+                </ul>
+            </div>
+        </div>-->
+   		<a href="../../../index.php"><div class="menuBaixo"></div></a>
+		<div class="magazine-viewport">
+			<div class="container">
+				<div class="magazine">
+					<!-- Next button -->
+					<div ignore="1" class="next-button"></div>
+					<!-- Previous button -->
+					<div ignore="1" class="previous-button"></div>
+				</div>
+			</div>
+		</div>
+		<!-- Thumbnails -->
+    </body>
+</html>
