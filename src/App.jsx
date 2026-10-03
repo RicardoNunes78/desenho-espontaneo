@@ -7,8 +7,8 @@ function App() {
 
       <header className="content-navbar">
         <div className="social">
-          <a href="http://www.rabisquedo.com.br/" title="Referências" target="_blank" rel="noreferrer">
-            <img src="/imagens/icons/rabisquedo.png" alt="Rabisquedo" />
+          <a href="https://www.linkedin.com/in/professorafranciele/" title="LinkeIn" target="_blank" rel="noreferrer">
+            <img src="/imagens/icons/linkedin.png" alt="LinkedIn" />
           </a>
           <a href="http://portal.uninter.com/" title="Uninter" target="_blank" rel="noreferrer">
             <img src="/imagens/uninter.png" alt="Uninter" />
